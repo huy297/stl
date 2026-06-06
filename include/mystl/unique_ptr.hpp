@@ -28,8 +28,7 @@ public:
     unique_ptr& operator=(unique_ptr&& other) noexcept {
         if (this == &other) return *this;
         
-        reset(other->ptr);
-        other->ptr = nullptr;
+        reset(other.release());
 
         return *this;
     }

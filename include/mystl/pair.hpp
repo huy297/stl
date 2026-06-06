@@ -29,8 +29,8 @@ template <typename T1, typename T2>
 pair<remove_cvref_t<T1>, remove_cvref_t<T2>>
 make_pair(T1&& a, T2&& b) {
     return pair<remove_cvref_t<T1>, remove_cvref_t<T2>>(
-        mystl::forward<T1>(a);
-        mystl::forward<T2>(b);
+        mystl::forward<T1>(a),
+        mystl::forward<T2>(b)
     );
 }
 
