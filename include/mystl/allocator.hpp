@@ -5,7 +5,7 @@
 #include "mystl/utility.hpp"
 
 
-namespace stl {
+namespace mystl {
 
 template<typename T>
 class allocator {
@@ -42,7 +42,7 @@ public:
 
     template<typename... Args>
     void construct(pointer p, Args&&... args) {
-        ::new ((void*)p) T(mystl::T(mystl::forward(args)...));
+        ::new (static_cast<void*>(p)) T(mystl::forward<Args>(args)...);
     }
 
     void destroy(pointer p) {

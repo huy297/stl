@@ -2,14 +2,13 @@
 
 #include "mystl/utility.hpp"
 
-
 namespace mystl {
 template <typename T>
 class unique_ptr {
 private:
     T* ptr = nullptr;
 
-public: 
+public:
     unique_ptr() = default;
 
     explicit unique_ptr(T* p) : ptr(p) {}
@@ -27,7 +26,7 @@ public:
 
     unique_ptr& operator=(unique_ptr&& other) noexcept {
         if (this == &other) return *this;
-        
+
         reset(other.release());
 
         return *this;
@@ -48,7 +47,7 @@ public:
     T* release() {
         T* ans = ptr;
         ptr = nullptr;
-        
+
         return ans;
     }
 

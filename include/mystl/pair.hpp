@@ -2,7 +2,6 @@
 
 #include "mystl/utility.hpp"
 
-
 namespace mystl {
 
 template <typename T1, typename T2>
@@ -15,7 +14,7 @@ struct pair {
     explicit pair(const T1& a, const T2& b) : first(a), second(b) {}
 
     template <typename U1, typename U2>
-    explicit pair(U1&& a, U2&& b) noexcept 
+    explicit pair(U1&& a, U2&& b) noexcept
         : first(mystl::forward<U1>(a)),
           second(mystl::forward<U2>(b)) {}
 

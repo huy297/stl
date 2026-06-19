@@ -114,7 +114,7 @@ public:
             mystl::swap(elems[i], other.elems[i]);
         }
     }
-  
+
 };
 
 }

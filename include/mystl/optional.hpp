@@ -53,7 +53,7 @@ public:
         if (other.engaged) {
             emplace(*other.ptr());
         }
-        
+
         return *this;
     }
 
