@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include <ostream>
 
+#include "mystl/utility.hpp"
+
 namespace mystl {
 
 class string {
@@ -348,6 +350,28 @@ public:
         return npos;
     }
 
+    size_type rfind(char c, size_type pos = npos) const {
+        if (size_ == 0) {
+            return npos;
+        }
+        size_type i = (pos < size_ - 1) ? pos : size_ - 1;
+        for (;; --i) {
+            if (raw()[i] == c) {
+                return i;
+            }
+            if (i == 0) {
+                break;
+            }
+        }
+        return npos;
+    }
+
+    void swap(string& o) {
+        string t = mystl::move(*this);
+        *this = mystl::move(o);
+        o = mystl::move(t);
+    }
+
     int compare(const string& o) const {
         size_type n = size_ < o.size_ ? size_ : o.size_;
         int c = std::memcmp(raw(), o.raw(), n);
@@ -401,6 +425,54 @@ inline bool operator<=(const string& a, const string& b) {
 }
 
 inline bool operator>=(const string& a, const string& b) {
+    return !(a < b);
+}
+
+inline bool operator==(const string& a, const char* b) {
+    return a.compare(string(b)) == 0;
+}
+
+inline bool operator==(const char* a, const string& b) {
+    return string(a).compare(b) == 0;
+}
+
+inline bool operator!=(const string& a, const char* b) {
+    return !(a == b);
+}
+
+inline bool operator!=(const char* a, const string& b) {
+    return !(a == b);
+}
+
+inline bool operator<(const string& a, const char* b) {
+    return a.compare(string(b)) < 0;
+}
+
+inline bool operator<(const char* a, const string& b) {
+    return string(a).compare(b) < 0;
+}
+
+inline bool operator>(const string& a, const char* b) {
+    return b < a;
+}
+
+inline bool operator>(const char* a, const string& b) {
+    return b < a;
+}
+
+inline bool operator<=(const string& a, const char* b) {
+    return !(b < a);
+}
+
+inline bool operator<=(const char* a, const string& b) {
+    return !(b < a);
+}
+
+inline bool operator>=(const string& a, const char* b) {
+    return !(a < b);
+}
+
+inline bool operator>=(const char* a, const string& b) {
     return !(a < b);
 }
 

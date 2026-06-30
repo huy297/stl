@@ -7,6 +7,8 @@
 #include "mystl/allocator.hpp"
 #include "mystl/memory.hpp"
 #include "mystl/utility.hpp"
+#include "mystl/iterator.hpp"
+#include "mystl/algorithm.hpp"
 
 namespace mystl {
 
@@ -22,6 +24,8 @@ public:
     using const_pointer = const T*;
     using iterator = T*;
     using const_iterator = const T*;
+    using reverse_iterator = mystl::reverse_iterator<iterator>;
+    using const_reverse_iterator = mystl::reverse_iterator<const_iterator>;
 
 private:
     pointer data_ = nullptr;
@@ -300,6 +304,142 @@ public:
     const_iterator end() const {
         return data_ + size_;
     }
+
+    const_iterator cbegin() const {
+        return data_;
+    }
+
+    const_iterator cend() const {
+        return data_ + size_;
+    }
+
+    reverse_iterator rbegin() {
+        return reverse_iterator(end());
+    }
+
+    const_reverse_iterator rbegin() const {
+        return const_reverse_iterator(end());
+    }
+
+    reverse_iterator rend() {
+        return reverse_iterator(begin());
+    }
+
+    const_reverse_iterator rend() const {
+        return const_reverse_iterator(begin());
+    }
+
+    const_reverse_iterator crbegin() const {
+        return const_reverse_iterator(cend());
+    }
+
+    const_reverse_iterator crend() const {
+        return const_reverse_iterator(cbegin());
+    }
+
+    iterator insert(const_iterator pos, const T& value) {
+        size_type index = static_cast<size_type>(pos - cbegin());
+        if (size_ == cap_) {
+            reallocate(cap_ ? cap_ * 2 : 1);
+        }
+        if (index == size_) {
+            construct_at(data_ + size_, value);
+        } else {
+            construct_at(data_ + size_, mystl::move(data_[size_ - 1]));
+            for (size_type i = size_ - 1; i > index; --i) {
+                data_[i] = mystl::move(data_[i - 1]);
+            }
+            data_[index] = value;
+        }
+        ++size_;
+        return data_ + index;
+    }
+
+    iterator insert(const_iterator pos, T&& value) {
+        size_type index = static_cast<size_type>(pos - cbegin());
+        if (size_ == cap_) {
+            reallocate(cap_ ? cap_ * 2 : 1);
+        }
+        if (index == size_) {
+            construct_at(data_ + size_, mystl::move(value));
+        } else {
+            construct_at(data_ + size_, mystl::move(data_[size_ - 1]));
+            for (size_type i = size_ - 1; i > index; --i) {
+                data_[i] = mystl::move(data_[i - 1]);
+            }
+            data_[index] = mystl::move(value);
+        }
+        ++size_;
+        return data_ + index;
+    }
+
+    iterator erase(const_iterator pos) {
+        size_type index = static_cast<size_type>(pos - cbegin());
+        for (size_type i = index; i + 1 < size_; ++i) {
+            data_[i] = mystl::move(data_[i + 1]);
+        }
+        --size_;
+        destroy_at(data_ + size_);
+        return data_ + index;
+    }
+
+    iterator erase(const_iterator first, const_iterator last) {
+        size_type index = static_cast<size_type>(first - cbegin());
+        size_type count = static_cast<size_type>(last - first);
+        if (count == 0) {
+            return data_ + index;
+        }
+        for (size_type i = index; i + count < size_; ++i) {
+            data_[i] = mystl::move(data_[i + count]);
+        }
+        size_type new_size = size_ - count;
+        for (size_type i = new_size; i < size_; ++i) {
+            destroy_at(data_ + i);
+        }
+        size_ = new_size;
+        return data_ + index;
+    }
+
+    void assign(size_type count, const T& value) {
+        clear();
+        if (count > cap_) {
+            reallocate(count);
+        }
+        for (size_type i = 0; i < count; ++i) {
+            construct_at(data_ + i, value);
+            ++size_;
+        }
+    }
 };
+
+template<typename T>
+bool operator==(const vector<T>& a, const vector<T>& b) {
+    return a.size() == b.size() && mystl::equal(a.begin(), a.end(), b.begin());
+}
+
+template<typename T>
+bool operator!=(const vector<T>& a, const vector<T>& b) {
+    return !(a == b);
+}
+
+template<typename T>
+bool operator<(const vector<T>& a, const vector<T>& b) {
+    return mystl::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end());
+}
+
+template<typename T>
+bool operator<=(const vector<T>& a, const vector<T>& b) {
+    return !(b < a);
+}
+
+template<typename T>
+bool operator>(const vector<T>& a, const vector<T>& b) {
+    return b < a;
+}
+
+template<typename T>
+bool operator>=(const vector<T>& a, const vector<T>& b) {
+    return !(a < b);
+}
 
 }

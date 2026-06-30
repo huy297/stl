@@ -7,6 +7,12 @@
 
 namespace mystl {
 
+struct nullopt_t {
+    explicit constexpr nullopt_t(int) {}
+};
+
+inline constexpr nullopt_t nullopt{0};
+
 template<typename T>
 class optional {
 private:
@@ -23,6 +29,8 @@ private:
 
 public:
     optional() = default;
+
+    optional(nullopt_t) noexcept {}
 
     explicit optional(const T& value) {
         emplace(value);
@@ -68,6 +76,11 @@ public:
             other.reset();
         }
 
+        return *this;
+    }
+
+    optional& operator=(nullopt_t) noexcept {
+        reset();
         return *this;
     }
 
@@ -128,6 +141,15 @@ public:
 
     T* operator->() {
         return &value();
+    }
+
+    const T* operator->() const {
+        return &value();
+    }
+
+    template<class U>
+    T value_or(U&& def) const {
+        return engaged ? *ptr() : static_cast<T>(mystl::forward<U>(def));
     }
 };
 }

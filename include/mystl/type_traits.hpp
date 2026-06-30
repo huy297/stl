@@ -128,4 +128,168 @@ struct enable_if<true, T> {
 template <bool B, typename T = void>
 using enable_if_t = typename enable_if<B, T>::type;
 
+template <typename...>
+using void_t = void;
+
+template <typename T>
+struct is_void : false_type {};
+
+template <>
+struct is_void<void> : true_type {};
+
+template <>
+struct is_void<const void> : true_type {};
+
+template <>
+struct is_void<volatile void> : true_type {};
+
+template <>
+struct is_void<const volatile void> : true_type {};
+
+template <typename T>
+inline constexpr bool is_void_v = is_void<T>::value;
+
+template <typename T>
+struct is_pointer : false_type {};
+
+template <typename T>
+struct is_pointer<T*> : true_type {};
+
+template <typename T>
+struct is_pointer<T* const> : true_type {};
+
+template <typename T>
+struct is_pointer<T* volatile> : true_type {};
+
+template <typename T>
+struct is_pointer<T* const volatile> : true_type {};
+
+template <typename T>
+inline constexpr bool is_pointer_v = is_pointer<T>::value;
+
+template <typename T>
+struct is_reference : false_type {};
+
+template <typename T>
+struct is_reference<T&> : true_type {};
+
+template <typename T>
+struct is_reference<T&&> : true_type {};
+
+template <typename T>
+inline constexpr bool is_reference_v = is_reference<T>::value;
+
+template <typename T>
+struct is_rvalue_reference : false_type {};
+
+template <typename T>
+struct is_rvalue_reference<T&&> : true_type {};
+
+template <typename T>
+inline constexpr bool is_rvalue_reference_v = is_rvalue_reference<T>::value;
+
+template <typename T>
+struct is_const : false_type {};
+
+template <typename T>
+struct is_const<const T> : true_type {};
+
+template <typename T>
+inline constexpr bool is_const_v = is_const<T>::value;
+
+template <typename T>
+struct add_const {
+    using type = const T;
+};
+
+template <typename T>
+using add_const_t = typename add_const<T>::type;
+
+template <typename T>
+struct add_pointer {
+    using type = remove_reference_t<T>*;
+};
+
+template <typename T>
+using add_pointer_t = typename add_pointer<T>::type;
+
+template <typename T>
+struct add_lvalue_reference {
+    using type = T&;
+};
+
+template <>
+struct add_lvalue_reference<void> {
+    using type = void;
+};
+
+template <>
+struct add_lvalue_reference<const void> {
+    using type = const void;
+};
+
+template <>
+struct add_lvalue_reference<volatile void> {
+    using type = volatile void;
+};
+
+template <>
+struct add_lvalue_reference<const volatile void> {
+    using type = const volatile void;
+};
+
+template <typename T>
+using add_lvalue_reference_t = typename add_lvalue_reference<T>::type;
+
+template <typename T>
+struct add_rvalue_reference {
+    using type = T&&;
+};
+
+template <>
+struct add_rvalue_reference<void> {
+    using type = void;
+};
+
+template <>
+struct add_rvalue_reference<const void> {
+    using type = const void;
+};
+
+template <>
+struct add_rvalue_reference<volatile void> {
+    using type = volatile void;
+};
+
+template <>
+struct add_rvalue_reference<const volatile void> {
+    using type = const volatile void;
+};
+
+template <typename T>
+using add_rvalue_reference_t = typename add_rvalue_reference<T>::type;
+
+template <typename T>
+add_rvalue_reference_t<T> declval() noexcept;
+
+template <typename T>
+struct is_array : false_type {};
+
+template <typename T>
+struct is_array<T[]> : true_type {};
+
+template <typename T, decltype(sizeof(0)) N>
+struct is_array<T[N]> : true_type {};
+
+template <typename T>
+inline constexpr bool is_array_v = is_array<T>::value;
+
+template <typename T>
+struct type_identity {
+    using type = T;
+};
+
+template <typename T>
+using type_identity_t = typename type_identity<T>::type;
+
 }  // namespace mystl

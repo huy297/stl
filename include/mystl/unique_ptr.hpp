@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 #include "mystl/utility.hpp"
 
 namespace mystl {
@@ -10,6 +12,8 @@ private:
 
 public:
     unique_ptr() = default;
+
+    unique_ptr(std::nullptr_t) noexcept : ptr(nullptr) {}
 
     explicit unique_ptr(T* p) : ptr(p) {}
 
@@ -28,6 +32,12 @@ public:
         if (this == &other) return *this;
 
         reset(other.release());
+
+        return *this;
+    }
+
+    unique_ptr& operator=(std::nullptr_t) noexcept {
+        reset();
 
         return *this;
     }
@@ -56,6 +66,12 @@ public:
         ptr = p;
     }
 
+    void swap(unique_ptr& other) noexcept {
+        T* tmp = ptr;
+        ptr = other.ptr;
+        other.ptr = tmp;
+    }
+
 
     explicit operator bool() const {
         return ptr != nullptr;
@@ -67,6 +83,39 @@ unique_ptr<T> make_unique(Args&&... args) {
     return unique_ptr<T>(new T(mystl::forward<Args>(args)...));
 }
 
+template <typename T>
+void swap(unique_ptr<T>& a, unique_ptr<T>& b) noexcept {
+    a.swap(b);
+}
 
+template <typename T>
+bool operator==(const unique_ptr<T>& a, const unique_ptr<T>& b) {
+    return a.get() == b.get();
+}
+
+template <typename T>
+bool operator!=(const unique_ptr<T>& a, const unique_ptr<T>& b) {
+    return a.get() != b.get();
+}
+
+template <typename T>
+bool operator==(const unique_ptr<T>& a, std::nullptr_t) {
+    return a.get() == nullptr;
+}
+
+template <typename T>
+bool operator==(std::nullptr_t, const unique_ptr<T>& a) {
+    return a.get() == nullptr;
+}
+
+template <typename T>
+bool operator!=(const unique_ptr<T>& a, std::nullptr_t) {
+    return a.get() != nullptr;
+}
+
+template <typename T>
+bool operator!=(std::nullptr_t, const unique_ptr<T>& a) {
+    return a.get() != nullptr;
+}
 
 }

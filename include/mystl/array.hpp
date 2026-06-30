@@ -4,6 +4,8 @@
 #include <stdexcept>
 
 #include "mystl/utility.hpp"
+#include "mystl/iterator.hpp"
+#include "mystl/algorithm.hpp"
 
 namespace mystl {
 
@@ -22,6 +24,9 @@ public:
 
     using iterator = T*;
     using const_iterator = const T*;
+
+    using reverse_iterator = mystl::reverse_iterator<iterator>;
+    using const_reverse_iterator = mystl::reverse_iterator<const_iterator>;
 
 private:
     T elems[N];
@@ -91,6 +96,38 @@ public:
         return elems + N;
     }
 
+    const_iterator cbegin() const {
+        return elems;
+    }
+
+    const_iterator cend() const {
+        return elems + N;
+    }
+
+    reverse_iterator rbegin() {
+        return reverse_iterator(end());
+    }
+
+    const_reverse_iterator rbegin() const {
+        return const_reverse_iterator(end());
+    }
+
+    reverse_iterator rend() {
+        return reverse_iterator(begin());
+    }
+
+    const_reverse_iterator rend() const {
+        return const_reverse_iterator(begin());
+    }
+
+    const_reverse_iterator crbegin() const {
+        return const_reverse_iterator(cend());
+    }
+
+    const_reverse_iterator crend() const {
+        return const_reverse_iterator(cbegin());
+    }
+
     bool empty() const {
         return N == 0;
     }
@@ -116,5 +153,48 @@ public:
     }
 
 };
+
+template<typename T, std::size_t N>
+bool operator==(const array<T, N>& lhs, const array<T, N>& rhs) {
+    return mystl::equal(lhs.begin(), lhs.end(), rhs.begin());
+}
+
+template<typename T, std::size_t N>
+bool operator!=(const array<T, N>& lhs, const array<T, N>& rhs) {
+    return !(lhs == rhs);
+}
+
+template<typename T, std::size_t N>
+bool operator<(const array<T, N>& lhs, const array<T, N>& rhs) {
+    return mystl::lexicographical_compare(
+        lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+}
+
+template<typename T, std::size_t N>
+bool operator<=(const array<T, N>& lhs, const array<T, N>& rhs) {
+    return !(rhs < lhs);
+}
+
+template<typename T, std::size_t N>
+bool operator>(const array<T, N>& lhs, const array<T, N>& rhs) {
+    return rhs < lhs;
+}
+
+template<typename T, std::size_t N>
+bool operator>=(const array<T, N>& lhs, const array<T, N>& rhs) {
+    return !(lhs < rhs);
+}
+
+template<std::size_t I, typename T, std::size_t N>
+T& get(array<T, N>& a) {
+    static_assert(I < N, "mystl::get: index out of bounds");
+    return a[I];
+}
+
+template<std::size_t I, typename T, std::size_t N>
+const T& get(const array<T, N>& a) {
+    static_assert(I < N, "mystl::get: index out of bounds");
+    return a[I];
+}
 
 }
