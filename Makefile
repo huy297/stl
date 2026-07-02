@@ -1,6 +1,6 @@
 # mystl — a from-scratch reimplementation of parts of the C++ STL
 #
-#   make          build every test in tests/ into build/
+#   make          build every test into build/
 #   make test     build, then run all tests
 #   make clean    remove build/
 
@@ -8,15 +8,17 @@ CXX      ?= g++
 CXXFLAGS ?= -std=c++17 -Iinclude -Wall -Wextra
 BUILD    := build
 
-SRCS    := $(wildcard tests/*.cpp)
-BINS    := $(patsubst tests/%.cpp,$(BUILD)/%,$(SRCS))
-HEADERS := $(wildcard include/mystl/*.hpp)
+SRCS    := $(shell find tests -name '*.cpp')
+BINS    := $(addprefix $(BUILD)/,$(basename $(notdir $(SRCS))))
+HEADERS := $(shell find include -name '*.hpp')
+
+vpath %.cpp $(sort $(dir $(SRCS)))
 
 .PHONY: all test clean
 
 all: $(BINS)
 
-$(BUILD)/%: tests/%.cpp $(HEADERS) | $(BUILD)
+$(BUILD)/%: %.cpp $(HEADERS) | $(BUILD)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
 $(BUILD):
